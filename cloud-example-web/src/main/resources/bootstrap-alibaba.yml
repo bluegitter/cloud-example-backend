@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_DISCOVERY_URL:cloud-register:10848}
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        file-extension: yml
+        # 公共配置
+        shared-configs:
+          - application.${spring.cloud.nacos.config.file-extension}
+          - application-datasource.${spring.cloud.nacos.config.file-extension}

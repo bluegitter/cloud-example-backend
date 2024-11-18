@@ -1,0 +1,25 @@
+spring:
+  cloud:
+    servicecomb:
+      discovery:
+        enabled: true
+        # 注册中心地址
+        address: ${HUAWEI_DISCOVERY_URL:http://127.0.0.1:30100}
+        # 应用名称。默认情况下只有应用名称相同的微服务之间才可以相互发现。
+        appName: ${HUAWEI_DISCOVERY_APP_NAME:cloud}
+        # 微服务名称
+        serviceName: ${spring.application.name}
+        # 微服务版本号
+        version: @version@
+        # 心跳时间，参数配置值的单位为秒。
+        healthCheckInterval: 15
+        # 环境名称。只有环境名称相同的微服务之间才可以相互发现。
+        environment: ${HUAWEI_DISCOVERY_NAMESPACE:production}
+      config:
+        # 当ServiceComb引擎版本为1.x时，{port}取值为30103，{servertype}取值为config-center。
+        # 当ServiceComb引擎版本为2.x时，{port}取值为30110，{servertype}取值为kie。
+        serverType: ${HUAWEI_CONFIG_TYPE:config-center}
+        # 配置中心地址
+        serverAddr: ${HUAWEI_CONFIG_CENTER_URL:http://127.0.0.1:30110}
+        # 环境名称。只有环境名称相同的的配置文件才可以正确读取。
+        env: ${HUAWEI_DISCOVERY_NAMESPACE:production}

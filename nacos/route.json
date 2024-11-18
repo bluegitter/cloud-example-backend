@@ -1,0 +1,18 @@
+{
+  "routeId": "cloud-example-web",
+  "routeName": "模板演示工程",
+  "predicates": [
+    {
+      "args": {
+        "_genkey_0": "/cloud-example/**"
+      },
+      "name": "Path"
+    }
+  ],
+  "filters": [],
+  "uri": "lb://cloud-example-web",
+  "seq": 0,
+  "createTime": "1971-01-01 00:00:00",
+  "updateTime": "2020-03-09 17:40:05",
+  "delFlag": "0"
+}

@@ -1,0 +1,12 @@
+server:
+  port: 6060
+
+spring:
+  application:
+    name: @artifactId@
+  banner:
+    charset: utf-8
+    location: classpath:banner.txt
+  profiles:
+    active: @profiles.active@
+

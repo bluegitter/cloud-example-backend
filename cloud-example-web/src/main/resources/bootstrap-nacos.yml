@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_DISCOVERY_URL:192.168.63.56:8848}
+        username: ${NACOS_DISCOVERY_USERNAME:nacos}
+        password: ${NACOS_DISCOVERY_PASSWORD:TH@nacos.2022&}
+#        password: ${NACOS_DISCOVERY_PASSWORD:ENC(tlFHfMJ4gEbpdr5A5mE6h5rhPJK8o8lu)}
+      config:
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        file-extension: yml
+        # 公共配置
+        shared-configs:
+          - application.${spring.cloud.nacos.config.file-extension}
+          - application-datasource.${spring.cloud.nacos.config.file-extension}
+        username: ${spring.cloud.nacos.discovery.username}
+        password: ${spring.cloud.nacos.discovery.password}

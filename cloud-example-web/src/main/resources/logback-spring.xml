@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright (c) 2018-2025, tellhow All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without
+  ~ modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~ this list of conditions and the following disclaimer.
+  ~ Redistributions in binary form must reproduce the above copyright
+  ~ notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~ Neither the name of the pig4cloud.com developer nor the names of its
+  ~ contributors may be used to endorse or promote products derived from
+  ~ this software without specific prior written permission.
+  ~ Author: 泰豪软件股份有限公司
+  -->
+
+<!--
+    小技巧: 在根pom里面设置统一存放路径，统一管理方便维护
+    <properties>
+        <log_path>/Users/tellhow</log-path>
+    </properties>
+    1. 其他模块加日志输出，直接copy本文件放在resources 目录即可
+    2. 注意修改 <property name="${log_path}/log_path" value=""/> 的value模块
+	3. 日志级别及文件
+		   日志记录采用分级记录，级别与日志文件名相对应，不同级别的日志信息记录到不同的日志文件中
+		   例如：error级别记录到log-error-xxx.log.gz或log_error.log（该文件为当前记录的日志文件），而log-error-xxx.log.gz为归档日志，
+		   日志文件按日期记录，同一天内，若日志文件大小等于或大于10M，则按0、1、2...顺序分别命名
+		   例如log-error-2021-04-23.0.log.gz
+		   其它级别的日志也是如此。
+	4. 文件路径
+		   若开发、测试用，在IDEA中运行项目，则到项目路径下查找logs文件夹，以相对路径../logs。
+		   若部署到Tomcat下，则在Tomcat下的logs文件中
+	5. Appender
+           FILE_ERROR对应error级别，文件名以log-error-xxx.log.gz形式命名
+           FILE_WARN对应warn级别，文件名以log-warn-xxx.log.gz形式命名
+           FILE_INFO对应info级别，文件名以log-info-xxx.log.gz形式命名
+           FILE_DEBUG对应debug级别，文件名以log-debug-xxx.log.gz形式命名
+           CONSOLE将日志信息输出到控制上，为方便开发测试使用
+-->
+<configuration debug="false" scan="false">
+	<contextName>${APP_NAME}</contextName>
+	<property name="log_path" value="logs/${project.artifactId}"/>
+	<springProperty name="APP_NAME" scope="context" source="spring.application.name"/>
+	<springProperty name="ServerIP" scope="context" source="spring.cloud.client.ip-address" defaultValue="0.0.0.0"/>
+	<springProperty name="ServerPort" scope="context" source="server.port" defaultValue="0000"/>
+	<!-- 彩色日志 -->
+	<!-- 彩色日志依赖的渲染类 -->
+	<conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+	<conversionRule conversionWord="wex"
+					converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+	<conversionRule conversionWord="wEx"
+					converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+
+	<!-- 彩色日志格式 -->
+	<property name="CONSOLE_LOG_PATTERN"
+			  value="[${APP_NAME}:${ServerIP}:${ServerPort}] [%clr(%X{traceId}){yellow},%clr(%X{spanId}){yellow}] %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%level){blue} %clr(${PID}){magenta} %clr([%thread]){orange} %clr(%logger){cyan} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}" />
+	<property name="CONSOLE_LOG_PATTERN_NO_COLOR" value="[${APP_NAME}:${ServerIP}:${ServerPort}] [%X{traceId},%X{spanId}] %d{yyyy-MM-dd HH:mm:ss.SSS} %level ${PID} [%thread] %logger %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}" />
+
+	<!-- Console 输出设置 -->
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+			<charset>utf8</charset>
+		</encoder>
+		<!--此日志appender是为开发使用，只配置最底级别，控制台输出的日志级别是大于或等于此级别的日志信息-->
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>debug</level>
+		</filter>
+	</appender>
+
+	<!-- 总日志文件 -->
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!-- 正在记录的日志文件的路径及文件名 -->
+		<file>${log_path}/log.log</file>
+		<!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 归档的日志文件的路径，例如今天是2021-04-23日志，当前写的日志文件路径为file节点指定，可以将此文件与file指定文件路径设置为不同路径，从而将当前日志文件或归档日志文件置不同的目录。
+			而2021-04-23的日志文件在由fileNamePattern指定。%d{yyyy-MM-dd}指定日期格式，%i指定索引 -->
+			<fileNamePattern>${log_path}/history/%d{yyyy-MM, aux}/log-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<!-- 除按日志记录之外，还配置了日志文件不能超过10M，若超过10M，日志文件会以索引0开始，
+			命名日志文件，例如log-2021-04-23.0.log.gz -->
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<!-- 追加方式记录日志 -->
+		<append>true</append>
+		<!-- 日志文件的格式 -->
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>${CONSOLE_LOG_PATTERN_NO_COLOR}</pattern>
+			<charset>utf-8</charset>
+		</encoder>
+	</appender>
+
+	<appender name="FILE_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+		<neverBlock>true</neverBlock>
+		<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+		<queueSize>1024</queueSize>
+		<!-- 打印栈堆信息 -->
+		<includeCallerData>true</includeCallerData>
+		<!-- 添加附加的appender,最多只能添加一个 -->
+		<appender-ref ref="FILE"/>
+	</appender>
+
+	<!-- 租户日志文件 -->
+	<appender name="TENANT_FILE" class="ch.qos.logback.classic.sift.SiftingAppender">
+		<discriminator>
+			<Key>log_type</Key> <!-- MDC的键 -->
+			<DefaultValue>meta</DefaultValue> <!-- MDC的默认值 -->
+		</discriminator>
+		<sift>
+			<appender name="${log_type}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+				<!-- 正在记录的日志文件的路径及文件名 -->
+				<file>${log_path}/${log_type}/log.log</file>
+				<!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+				<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+					<!-- 归档的日志文件的路径，例如今天是2021-04-23日志，当前写的日志文件路径为file节点指定，可以将此文件与file指定文件路径设置为不同路径，从而将当前日志文件或归档日志文件置不同的目录。
+					而2021-04-23的日志文件在由fileNamePattern指定。%d{yyyy-MM-dd}指定日期格式，%i指定索引 -->
+					<fileNamePattern>${log_path}/${log_type}/history/%d{yyyy-MM, aux}/log-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+					<!-- 除按日志记录之外，还配置了日志文件不能超过10M，若超过10M，日志文件会以索引0开始，
+					命名日志文件，例如log-2021-04-23.0.log.gz -->
+					<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+						<maxFileSize>10MB</maxFileSize>
+					</timeBasedFileNamingAndTriggeringPolicy>
+					<maxHistory>30</maxHistory>
+				</rollingPolicy>
+				<!-- 追加方式记录日志 -->
+				<append>true</append>
+				<!-- 日志文件的格式 -->
+				<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+					<pattern>${CONSOLE_LOG_PATTERN_NO_COLOR}</pattern>
+					<charset>utf-8</charset>
+				</encoder>
+			</appender>
+		</sift>
+	</appender>
+
+	<appender name="TENANT_FILE_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+		<neverBlock>true</neverBlock>
+		<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+		<queueSize>1024</queueSize>
+		<!-- 打印栈堆信息 -->
+		<includeCallerData>true</includeCallerData>
+		<!-- 添加附加的appender,最多只能添加一个 -->
+		<appender-ref ref="TENANT_FILE"/>
+	</appender>
+
+	<!--nacos 心跳 INFO 屏蔽-->
+	<logger name="com.alibaba.nacos" level="OFF">
+		<appender-ref ref="FILE_ASYNC"/>
+	</logger>
+
+
+	<!-- 业务日志 -->
+	<appender name="biz_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log_path}/biz.log</file>
+		<encoder>
+			<pattern>%msg%n</pattern>
+			<charset>UTF-8</charset>
+		</encoder>
+		<!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 归档的日志文件的路径，例如今天是2021-04-23日志，当前写的日志文件路径为file节点指定，可以将此文件与file指定文件路径设置为不同路径，从而将当前日志文件或归档日志文件置不同的目录。
+					而2021-04-23的日志文件在由fileNamePattern指定。%d{yyyy-MM-dd}指定日期格式，%i指定索引 -->
+			<fileNamePattern>${log_path}/history/biz-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<!-- 除按日志记录之外，还配置了日志文件不能超过10M，若超过10M，日志文件会以索引0开始，
+				命名日志文件，例如log-2021-04-23.0.log.gz -->
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<!-- 追加方式记录日志 -->
+		<append>true</append>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>INFO</level>
+		</filter>
+	</appender>
+
+	<appender name="kafka" 	class="com.tellhow.cloud.common.log.kafka.KafkaAppender">
+		<encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder" />
+		<keyingStrategy class="com.tellhow.cloud.common.log.kafka.keying.NoKeyKeyingStrategy" />
+		<deliveryStrategy class="com.tellhow.cloud.common.log.kafka.delivery.AsynchronousDeliveryStrategy" />
+		<!-- Optional parameter to use a fixed partition -->
+		<!-- <partition>0</partition> -->
+		<!-- Optional parameter to include log timestamps into the kafka message -->
+		<!-- <appendTimestamp>true</appendTimestamp> -->
+		<!-- producer configs are documented here: https://kafka.apache.org/documentation.html#newproducerconfigs -->
+		<!-- 出消息持久化机制参数-->
+		<producerConfig>acks=1</producerConfig>
+		<!-- 重试次数 -->
+		<producerConfig>retries=0</producerConfig>
+		<!-- 延迟时间 -->
+		<producerConfig>linger.ms=1</producerConfig>
+		<!-- 缓冲区大小 -->
+		<producerConfig>batch.size=16384</producerConfig>
+		<!-- 内存大小 -->
+		<producerConfig>buffer.memory=33554432</producerConfig>
+	</appender>
+
+	<logger name="com.tellhow.cloud.common.log.monitor.BizLogUtils" level="info" addtivity="false">
+		<appender-ref ref="kafka" />
+	</logger>
+
+	<logger name="com.tellhow.cloud.common.log.monitor.OperateLogUtils" level="info" addtivity="false">
+		<appender-ref ref="kafka" />
+	</logger>
+
+	<!-- Level: FATAL 0  ERROR 3  WARN 4  INFO 6  DEBUG 7 -->
+	<!-- 生产环境下，将此级别配置为适合的级别，以免日志文件太多或影响程序性能 -->
+	<root level="INFO">
+		<!-- 生产环境将请CONSOLE去掉 -->
+		<appender-ref ref="CONSOLE"/>
+		<appender-ref ref="FILE_ASYNC"/>
+		<appender-ref ref="TENANT_FILE_ASYNC"/>
+	</root>
+</configuration>

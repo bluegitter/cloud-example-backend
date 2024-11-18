@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+            http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.tellhow.example</groupId>
+        <artifactId>cloud-example</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>cloud-example-web</artifactId>
+
+    <dependencies>
+        <!--必备: 依赖api模块-->
+        <dependency>
+            <groupId>com.tellhow.example</groupId>
+            <artifactId>cloud-example-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!--必备: 昆仑框架模块-->
+        <dependency>
+            <groupId>com.tellhow</groupId>
+            <artifactId>cloud-starter-tidp</artifactId>
+            <version>${cloud-tidp.version}</version>
+        </dependency>
+        <!--必备: 表单视图运行模块-->
+        <dependency>
+            <groupId>com.tellhow</groupId>
+            <artifactId>cloud-starter-engine</artifactId>
+            <version>${cloud-engine.version}</version>
+        </dependency>
+        <!--数据库驱动-->
+        <!--mysql 驱动-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <!-- oracle驱动 -->
+        <dependency>
+            <groupId>oracle</groupId>
+            <artifactId>ojdbc14</artifactId>
+        </dependency>
+        <!-- DM驱动 -->
+        <dependency>
+            <groupId>com.dameng</groupId>
+            <artifactId>Dm7JdbcDriver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dameng</groupId>
+            <artifactId>Dm8JdbcDriver</artifactId>
+        </dependency>
+        <!-- 金仓驱动 -->
+        <dependency>
+            <groupId>com.kingbase</groupId>
+            <artifactId>kingbasejdbc4</artifactId>
+        </dependency>
+        <!-- pg驱动 -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

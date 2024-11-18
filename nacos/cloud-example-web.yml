@@ -1,0 +1,23 @@
+security:
+  oauth2:
+    client:
+      client-id: ${SECURITY_OAUTH2_CLIENT_ID:ENC(utHXmz1PKEi37O2rmb5K7w==)}
+      client-secret: ${SECURITY_OAUTH2_CLIENT_SECRET:ENC(utHXmz1PKEi37O2rmb5K7w==)}
+      scope: server
+
+cloud:
+  tenant-server:
+    enable: ${TENANT_ENABLE:false}
+
+mybatis-plus:
+  configuration:
+    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    call-setters-on-nulls: true
+
+spring:
+  datasource:
+    druid:
+      url: jdbc:mysql://192.168.63.22:3306/test
+      username: CLOUDX
+      password: TELLHOWSOFT1
+      driver-class-name: com.mysql.cj.jdbc.Driver
